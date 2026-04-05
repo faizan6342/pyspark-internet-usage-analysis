@@ -79,5 +79,42 @@ plt.show()
 
 print("\nVisualization generated successfully!")
 
+# Actual vs Predicted Graph
+# =========================
+
+pred_pd = predictions.select("total_monthly_MB", "prediction").toPandas()
+
+plt.figure()
+plt.scatter(pred_pd["total_monthly_MB"], pred_pd["prediction"])
+
+plt.title("Actual vs Predicted Usage")
+plt.xlabel("Actual Usage (MB)")
+plt.ylabel("Predicted Usage (MB)")
+plt.grid()
+plt.show()
+
+
+# Peak vs Off-Peak Usage
+# =========================
+
+peak_data = data.groupBy("month") \
+    .agg(
+        avg("peak_hour_usage_MB").alias("peak"),
+        avg("offpeak_hour_usage_MB").alias("offpeak")
+    ).orderBy("month")
+
+peak_pd = peak_data.toPandas()
+
+plt.figure()
+plt.plot(peak_pd["month"], peak_pd["peak"], label="Peak Usage")
+plt.plot(peak_pd["month"], peak_pd["offpeak"], label="Off-Peak Usage")
+
+plt.legend()
+plt.title("Peak vs Off-Peak Usage")
+plt.xlabel("Month")
+plt.ylabel("Usage (MB)")
+plt.grid()
+plt.show()
+
 # Stop Spark session
 spark.stop()
