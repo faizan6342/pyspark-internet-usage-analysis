@@ -3,6 +3,7 @@ from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.regression import LinearRegression
 from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.sql.functions import avg
+import matplotlib.pyplot as plt
 
 # Create Spark Session
 spark = SparkSession.builder.appName("InternetDataUsage").getOrCreate()
@@ -34,11 +35,13 @@ model = lr.fit(train)
 
 # Predictions
 predictions = model.transform(test)
+print("\nSample Predictions:\n")
 predictions.select("user_id", "month", label_column, "prediction").show(10)
 
 # Evaluation
 evaluator = RegressionEvaluator(labelCol=label_column, predictionCol="prediction")
 
+print("\nEvaluation Metrics:")
 print("MAE:", evaluator.setMetricName("mae").evaluate(predictions))
 print("RMSE:", evaluator.setMetricName("rmse").evaluate(predictions))
 print("R2:", evaluator.setMetricName("r2").evaluate(predictions))
@@ -48,4 +51,33 @@ monthly_trend = data.groupBy("year", "month") \
     .agg(avg("total_monthly_MB").alias("avg_usage_MB")) \
     .orderBy("year", "month")
 
+print("\nMonthly Internet Usage Trend:")
 monthly_trend.show()
+
+
+# Visualization
+# =========================
+
+# Convert Spark DataFrame to Pandas
+trend_pd = monthly_trend.toPandas()
+
+# Sort values
+trend_pd = trend_pd.sort_values(by=["year", "month"])
+
+# Plot
+plt.figure()
+plt.plot(trend_pd["month"], trend_pd["avg_usage_MB"], marker='o')
+
+plt.title("Monthly Internet Usage Trend (2023)")
+plt.xlabel("Month")
+plt.ylabel("Average Usage (MB)")
+plt.xticks(range(1, 13))
+plt.grid()
+plt.tight_layout()
+
+plt.show()
+
+print("\nVisualization generated successfully!")
+
+# Stop Spark session
+spark.stop()
