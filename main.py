@@ -56,7 +56,9 @@ monthly_trend.show()
 
 
 # Visualization
-# =========================
+# --------------
+
+#Monthly Trend
 
 # Convert Spark DataFrame to Pandas
 trend_pd = monthly_trend.toPandas()
@@ -75,12 +77,8 @@ plt.xticks(range(1, 13))
 plt.grid()
 plt.tight_layout()
 
-plt.show()
-
-print("\nVisualization generated successfully!")
 
 # Actual vs Predicted Graph
-# =========================
 
 pred_pd = predictions.select("total_monthly_MB", "prediction").toPandas()
 
@@ -91,11 +89,9 @@ plt.title("Actual vs Predicted Usage")
 plt.xlabel("Actual Usage (MB)")
 plt.ylabel("Predicted Usage (MB)")
 plt.grid()
-plt.show()
 
 
 # Peak vs Off-Peak Usage
-# =========================
 
 peak_data = data.groupBy("month") \
     .agg(
@@ -114,7 +110,12 @@ plt.title("Peak vs Off-Peak Usage")
 plt.xlabel("Month")
 plt.ylabel("Usage (MB)")
 plt.grid()
+
+
+# Show all graphs
+
 plt.show()
+print("\nVisualization generated successfully!")
 
 # Stop Spark session
 spark.stop()
